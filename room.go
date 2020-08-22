@@ -18,8 +18,20 @@ type room struct {
 	clients map[*client]bool
 }
 
+// チャットルームを生成して返す
+func newRoom() *room {
+	return &room{
+		forward: make(chan []byte),
+		join:    make(chan *client),
+		leave:   make(chan *client),
+		clients: make(map[*client]bool),
+	}
+}
+
 func (r *room) run() {
+	// 無限ループ（強制終了されるまで実行し続ける）
 	for {
+		// いずれかのチャネルにメッセージが届くと、それぞれの処理を行う
 		select {
 		case client := <-r.join:
 			//	参加
