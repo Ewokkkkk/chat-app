@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/stretchr/objx"
+
 	"github.com/stretchr/gomniauth"
 )
 
@@ -49,6 +51,35 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Location", loginUrl)
 		w.WriteHeader(http.StatusTemporaryRedirect)
+	case "callback":
+		provider, err := gomniauth.Provider(provider)
+		if err != nil {
+			log.Fatalln("認証プロバイダーの取得に失敗しました", provider, "-", err)
+		}
+
+		// 解析結果を元に、認証を完了させ、ユーザー情報にアクセスするための認証情報を取得する
+		creds, err := provider.CompleteAuth(objx.MustFromURLQuery(r.URL.RawQuery))
+		if err != nil {
+			log.Fatalln("認証を完了出来ませんでした", provider, "-", err)
+		}
+
+		// ユーザー情報取得
+		user, err := provider.GetUser(creds)
+		if err != nil {
+			log.Fatalln("ユーザーの取得に失敗しました", provider, "-", err)
+		}
+
+		// 取得した情報からユーザーネームを取得し、Base64に変換
+		authCookieValue := objx.New(map[string]interface{}{
+			"name": user.Name(),
+		}).MustBase64()
+		http.SetCookie(w, &http.Cookie{
+			Name:  "auth",
+			Value: authCookieValue,
+			Path:  "/"})
+		w.Header()["Location"] = []string{"/chat"}
+		w.WriteHeader(http.StatusTemporaryRedirect)
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "アクション%sには非対応です", action)
