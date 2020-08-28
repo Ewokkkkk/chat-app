@@ -38,9 +38,9 @@ func main() {
 	// -addr=":8080" が初期値
 	var addr = flag.String("addr", ":8080", "アプリケーションのアドレス")
 	flag.Parse() // フラグを解釈する
-	gomniauth.SetSecurityKey("key")
+	gomniauth.SetSecurityKey(securityKey)
 	gomniauth.WithProviders(
-		google.New("996339149681-vgorqnrenqeoukg6ecdbf4odlig0a72e.apps.googleusercontent.com", "EVLast0qPHtyJq5nPXG54B0O", "http://localhost:8080/auth/callback/google"),
+		google.New(clientIDGoogle, cientSecretGoogle, "http://localhost:8080/auth/callback/google"),
 	)
 	r := newRoom()
 	// r.tracer = trace.New(os.Stdout)
