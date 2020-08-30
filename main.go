@@ -40,7 +40,7 @@ func main() {
 	flag.Parse() // フラグを解釈する
 	gomniauth.SetSecurityKey(securityKey)
 	gomniauth.WithProviders(
-		google.New(clientIDGoogle, cientSecretGoogle, "http://localhost:8080/auth/callback/google"),
+		google.New(clientIDGoogle, clientSecretGoogle, "http://localhost:8080/auth/callback/google"),
 	)
 	r := newRoom()
 	// r.tracer = trace.New(os.Stdout)
@@ -48,6 +48,16 @@ func main() {
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:   "auth",
+			Value:  "", //	MaxAge=-1で削除されないブラウザもあるため、空文字で上書き
+			Path:   "/",
+			MaxAge: -1, // クッキーが即座に削除される
+		})
+		w.Header()["Location"] = []string{"/chat"}
+		w.WriteHeader(http.StatusTemporaryRedirect)
+	})
 
 	// チャットルームを開始(goroutineとして実行)
 	go r.run()
