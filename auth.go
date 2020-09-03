@@ -69,10 +69,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln("ユーザーの取得に失敗しました", provider, "-", err)
 		}
 
-		// 取得した情報からユーザーネーム, アバターURLを取得し、Base64に変換
+		// 取得した情報からユーザーネーム, アバターURL, Emailを取得し、Base64に変換
 		authCookieValue := objx.New(map[string]interface{}{
 			"name":       user.Name(),
 			"avatar_url": user.AvatarURL(),
+			"email":      user.Email(),
 		}).MustBase64()
 		http.SetCookie(w, &http.Cookie{
 			Name:  "auth",

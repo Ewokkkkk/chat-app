@@ -25,10 +25,7 @@ func (c *client) read() {
 		if err := c.socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now().Format("15:04")
 			msg.Name = c.userData["name"].(string)
-			// cookieの内容を表すuserDataの中にアバターURLが存在すればmessageにセットする
-			if avatarURL, ok := c.userData["avatar_url"]; ok {
-				msg.AvatarURL = avatarURL.(string)
-			}
+			msg.AvatarURL, _ = c.room.avatar.GetAvatarURL(c)
 			c.room.forward <- msg
 		} else {
 			break
