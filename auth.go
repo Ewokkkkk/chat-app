@@ -71,7 +71,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln("ユーザーの取得に失敗しました", provider, "-", err)
 		}
 
-		// メールアドレスのハッシュ値を計算し、useridフィールドにセットする
+		// ユーザー名のハッシュ値を計算し、useridフィールドにセットする
 		// この値はGravatarで利用できる
 		m := md5.New()
 		io.WriteString(m, strings.ToLower(user.Name()))

@@ -1,0 +1,4 @@
+# .gitignore, readme以外は無視
+*
+!readme.txt
+!.gitignore
